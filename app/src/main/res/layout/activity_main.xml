@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/txtPhoneTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EXPLOSIVE PHONE"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:paddingBottom="20dp"/>
+
+    <TextView
+        android:id="@+id/txtPunchData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waiting for Watch Data..."
+        android:textSize="20sp"
+        android:paddingBottom="20dp"/>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/phoneChart"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"/>
+
+</LinearLayout>
