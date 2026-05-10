@@ -36,8 +36,14 @@
         </activity>
 
         <service
-            android:name=".WatchDataListenerService"
-            android:exported="true" />
+            android:name=".WatchMessageService"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+
+        </service>
 
     </application>
 
