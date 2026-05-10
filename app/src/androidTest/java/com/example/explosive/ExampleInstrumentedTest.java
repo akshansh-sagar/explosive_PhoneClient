@@ -1,4 +1,4 @@
-package com.example.explosive_phoneclient;
+package com.example.explosive;
 
 import android.content.Context;
 

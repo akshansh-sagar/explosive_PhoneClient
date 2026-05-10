@@ -1,4 +1,4 @@
-package com.example.explosive_phoneclient;
+package com.example.explosive;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +13,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
@@ -26,11 +27,11 @@ public class PhoneMainActivity extends AppCompatActivity {
 
     private List<Entry> entries = new ArrayList<>();
     private int index = 0;
-    private com.google.android.gms.wearable.DataClient.OnDataChangedListener dataListener;
+
+    private DataClient.OnDataChangedListener dataListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -39,42 +40,53 @@ public class PhoneMainActivity extends AppCompatActivity {
 
         txtPunchData.setText("Waiting for Watch Data...");
 
-        // 🟢 DATA LAYER LISTENER (FIXED)
-        dataListener = dataEvents -> {
+        // DATA LAYER LISTENER (FIXED + RELIABLE)
+        dataListener = new DataClient.OnDataChangedListener() {
 
-            for (DataEvent event : dataEvents) {
+            @Override
+            public void onDataChanged(DataEventBuffer dataEvents) {
 
-                if (event.getType() == DataEvent.TYPE_CHANGED &&
-                        "/punch_data".equals(event.getDataItem().getUri().getPath())) {
+                Log.d("PHONE_DEBUG", "Listener triggered. Events: " + dataEvents.getCount());
 
-                    DataMapItem mapItem =
-                            DataMapItem.fromDataItem(event.getDataItem());
+                for (DataEvent event : dataEvents) {
 
-                    String data = mapItem.getDataMap().getString("punch");
+                    String path = event.getDataItem().getUri().getPath();
 
-                    Log.d("PHONE_DATA", "RECEIVED: " + data);
+                    Log.d("PHONE_DEBUG", "Path received: " + path);
 
-                    runOnUiThread(() -> {
+                    if ("/punch_data".equals(path)) {
 
-                        txtPunchData.setText(data);
+                        DataMapItem mapItem =
+                                DataMapItem.fromDataItem(event.getDataItem());
 
-                        try {
-                            float value = Float.parseFloat(
-                                    data.replace("Punch Force: ", "")
-                            );
+                        String data = mapItem.getDataMap().getString("punch");
 
-                            updateGraph(value);
+                        Log.d("PHONE_DEBUG", "DATA RECEIVED: " + data);
 
-                        } catch (Exception e) {
-                            Log.e("PHONE_DATA", "Parse error", e);
-                        }
-                    });
+                        runOnUiThread(() -> {
+
+                            txtPunchData.setText(data);
+
+                            try {
+                                String clean = data.replace("Punch Force: ", "");
+                                float value = Float.parseFloat(clean);
+
+                                updateGraph(value);
+
+                            } catch (Exception e) {
+                                Log.e("PHONE_DEBUG", "Parse error", e);
+                            }
+                        });
+                    }
                 }
             }
         };
 
+        // 🔴 REGISTER LISTENER
         Wearable.getDataClient(this)
                 .addListener(dataListener);
+
+        Log.d("PHONE_DEBUG", "Listener REGISTERED");
     }
 
     @Override
@@ -83,6 +95,8 @@ public class PhoneMainActivity extends AppCompatActivity {
 
         Wearable.getDataClient(this)
                 .removeListener(dataListener);
+
+        Log.d("PHONE_DEBUG", "Listener REMOVED");
     }
 
     private void updateGraph(float value) {
