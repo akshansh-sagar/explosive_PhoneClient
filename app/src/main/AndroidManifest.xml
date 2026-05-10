@@ -35,6 +35,10 @@
 
         </activity>
 
+        <service
+            android:name=".WatchDataListenerService"
+            android:exported="true" />
+
     </application>
 
 </manifest>
